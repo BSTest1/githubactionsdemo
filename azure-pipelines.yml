@@ -1,31 +1,44 @@
 trigger:
-- repeater
+- main
 
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  BRIGHT_TOKEN: $(BRIGHT_TOKEN)
+  REPEATER_ID: $(REPEATER_ID)
+
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: $(node_version)
+    versionSpec: '14.x'
+  displayName: 'Install Node.js'
 
 - script: |
-    npm install
-    npm install @brightsec/cli -g || true
-      echo "Start Repeater 🏁"
-      PID_REPEATER=$(bright-cli repeater --token {BRIGHT_TOKEN} --id {REPEATER_ID} &> /dev/null & echo $!)
-      echo "Repeater started PID: $PID_REPEATER"
-      sleep 10
-      echo "Start BRIGHT Scan 🏁"
-      SCAN_ID=$(bright-cli scan:run --token {BRIGHT_TOKEN} --repeater {REPEATER_ID} --name "Azure scan with repeater" --crawler https://brokencrystals.com/ --smart)
-      echo "Scan was started with ID https://app.brightsec.com/scans/$SCAN_ID\n"
-      sleep 10
-      echo "Wait for issues ⏳"
-      RESULT=$(bright-cli scan:polling --interval 30s --timeout 20m --token {BRIGHT_TOKEN} --breakpoint medium_issue $SCAN_ID)
-      if [ -z "$RESULT" ]
-      then
-          echo "Failed to stop scan"
-      else
-          echo "Stop Scan 🛑"
-          bright-cli scan:stop --token {BRIGHT_TOKEN} $SCAN_ID
-      fi
+    npm install @brightsec/cli -g
+  displayName: 'Install Bright CLI'
+
+- script: |
+    echo "Start Repeater :checkered_flag:"
+    bright-cli repeater --token "$(BRIGHT_TOKEN)" --id "$(REPEATER_ID)" &> /dev/null & echo $!
+    sleep 10
+  displayName: 'Start Repeater'
+
+- script: |
+    echo "Start Repeater :checkered_flag:"
+    PID_REPEATER=$(bright-cli repeater --token "$(BRIGHT_TOKEN)" --id "$(REPEATER_ID)" &> /dev/null & echo $!)
+    echo "Repeater started PID: $PID_REPEATER"
+    sleep 10
+    echo "Start Bright Scan :checkered_flag:"
+    SCAN_ID=$(bright-cli scan:run --token "$(BRIGHT_TOKEN)" --repeater "$(REPEATER_ID)" --name "Azure Pipeline Scan with Repeater" --crawler https://brokencrystals.com/ --smart --test jwt broken_saml_auth brute_force_login)
+    echo "Scan was started with ID https://app.brightsec.com/scans/$SCAN_ID"
+    sleep 10
+    echo "Wait for issues :hourglass_flowing_sand:"
+    RESULT=$(bright-cli scan:polling --interval 30s --timeout 20m --token "$(BRIGHT_TOKEN)" --breakpoint high_issue $SCAN_ID)
+    if [ -z "$RESULT" ]
+    then
+        echo "Failed to stop scan"
+    else
+        echo "Stop Scan :octagonal_sign:"
+        bright-cli scan:stop --token "$(BRIGHT_TOKEN)" $SCAN_ID
+  displayName: 'Start Scan'
