@@ -15,7 +15,7 @@ steps:
 
 - script: |
     npm install
-    npm install @brightsec/cli - g|| true
+    npm install @brightsec/cli || true
       echo "Start Repeater 🏁"
       PID_REPEATER=$(bright-cli repeater --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u --id wgtsXqzjeofa3y6gTeTgHT	 &> /dev/null & echo $!)
       echo "Repeater started PID: $PID_REPEATER"
