@@ -1,9 +1,12 @@
 # Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
-trigger:
+- task: NexPloitScan@3
+  inputs:
+    apiToken: 'nbr50cv.nexa.avwdtsno7theo0c2houmqmnecta1om0b'
+    hostname: 'nexploit.app'
+    module: 'dast'
+    discoveryTypes: 'crawler'
+    scanTests: 'angular_csti,jwt,date_manipulation,cookie_security,csrf,directory_listing,dom_xss,file_upload,full_path_disclosure,header_security,http_method_fuzzing,secret_tokens,version_control_systems,wordpress'
+    trigger:
 - brokencrystals
 
 pool:
