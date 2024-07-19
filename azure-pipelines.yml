@@ -1,54 +1,40 @@
-trigger:
-- '*'
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
 
-jobs:
-- job: RunCurlCommand
-  steps:
-  - script: |
-      curl -X 'POST' \
-        -H 'accept: application/json' \
-        -H 'Authorization: Api-Key h360roq.nexa.kzextcnz0hzny5c2m8okbf8mzl00ilej' \
-        -H 'Content-Type: application/json' \
-        -d '{
-          "tests": [
-            "csrf",
-            "sqli"
-          ],
-          "discoveryTypes": [
-            "crawler"
-          ],
-          "poolSize": 50,
-          "crawlerUrls": [
-            "https://brokencrystals.com"
-          ],
-          "smart": true,
-          "optimizedCrawler": true,
-          "maxInteractionsChainLength": 5,
-          "skipStaticParams": true,
-          "exclusions": {
-            "requests": [
-              {
-                "patterns": [
-                  "(?<excluded_file_ext>(\\/\\/[^?#]+\\.)((?<image>jpg|jpeg|png|gif|svg)|(?<font>ttf|otf|fnt|fon))(?:$|#|\\?))"
-                ],
-                "methods": [
-                  "GET"
-                ]
-              }
-            ],
-            "params": [
-              "^(?!.*login).*$"
-            ],
-            "htmlSelectors": [
-              "/html/body/div[1]/table/tbody/tr/td[8]/a",
-              ".mat-focus-indicator .mat-menu-item ng-tns-c46-3"
-            ]
-          },
-          "module": "dast",
-          "info": {
-            "client": {
-              "name": "bright-cli",
-              "version": "10.0.0"
-            },
-          },
-        }'
+trigger:
+- repeater
+
+pool:
+  vmImage: 'ubuntu-latest'
+strategy:
+  matrix:
+    node_12_x:
+      node_version: 12.x
+
+steps:
+- task: NodeTool@0 
+  inputs:
+    versionSpec: $(node_version)
+
+- script: |
+    npm install
+    npm install @brightsec/cli - g|| true
+      echo "Start Repeater 🏁"
+      PID_REPEATER=$(bright-cli repeater --token {u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u} --id {wgtsXqzjeofa3y6gTeTgHT	} &> /dev/null & echo $!)
+      echo "Repeater started PID: $PID_REPEATER"
+      sleep 10
+      echo "Start Brightsec Scan 🏁"
+      SCAN_ID=$(bright-cli scan:run --token {u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u} --repeater {wgtsXqzjeofa3y6gTeTgHT} --name "Azure scan with repeater" --crawler https://brokencrystals.com/ --smart)
+      echo "Scan was started with ID https://app.brightsec.com/scans/$SCAN_ID\n"
+      sleep 10
+      echo "Wait for issues ⏳"
+      RESULT=$(bright-cli scan:polling --interval 30s --timeout 20m --token {u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u} --breakpoint medium_issue $SCAN_ID)
+      if [ -z "$RESULT" ]
+      then
+          echo "Failed to stop scan"
+      else
+          echo "Stop Scan 🛑"
+          bright-cli scan:stop --token {u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u} $SCAN_ID
+      fi
