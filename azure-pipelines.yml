@@ -1,3 +1,8 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
 trigger:
 - repeater
 
@@ -5,30 +10,31 @@ pool:
   vmImage: 'ubuntu-latest'
 strategy:
   matrix:
-    node_14_x:
-      node_version: 14.x
+    node_12_x:
+      node_version: 12.x
 
 steps:
-- task: NodeTool@0 
+- task: NodeTool@0
   inputs:
     versionSpec: $(node_version)
 
 - script: |
     npm install
-    npm install @brightsec/cli || true
+    npm install @brightsec/cli -g || true
       echo "Start Repeater 🏁"
-      PID_REPEATER=$(bright-cli repeater --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u --id wgtsXqzjeofa3y6gTeTgHT	 &> /dev/null & echo $!)
+      PID_REPEATER=$(bright-cli repeater --token {BRIGHT_TOKEN} --id {REPEATER_ID} &> /dev/null & echo $!)
       echo "Repeater started PID: $PID_REPEATER"
       sleep 10
-      echo "Start Brightsec Scan 🏁"
-      SCAN_ID=$(bright-cli scan:run --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u --repeater wgtsXqzjeofa3y6gTeTgHT --name "azure" --crawler https://brokencrystals.com/ --smart)
+      echo "Start BRIGHT Scan 🏁"
+      SCAN_ID=$(bright-cli scan:run --token {BRIGHT_TOKEN} --repeater {REPEATER_ID} --name "Azure scan with repeater" --crawler https://brokencrystals.com/ --smart)
+      echo "Scan was started with ID https://app.brightsec.com/scans/$SCAN_ID\n"
       sleep 10
       echo "Wait for issues ⏳"
-      RESULT=$(bright-cli scan:polling --interval 30s --timeout 20m --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u --breakpoint medium_issue $SCAN_ID)
+      RESULT=$(bright-cli scan:polling --interval 30s --timeout 20m --token {BRIGHT_TOKEN} --breakpoint medium_issue $SCAN_ID)
       if [ -z "$RESULT" ]
       then
           echo "Failed to stop scan"
       else
           echo "Stop Scan 🛑"
-          bright-cli scan:stop --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u $SCAN_ID
+          bright-cli scan:stop --token {BRIGHT_TOKEN} $SCAN_ID
       fi
