@@ -12,18 +12,3 @@ steps:
     discoveryTypes: 'crawler'
     crawlerUrls: 'https://brokencrystals.com'
     scanTests: 'jwt'
-
-- script: |
-    echo "Start Bright Scan :checkered_flag:"
-    SCAN_ID=$(bright-cli scan:run --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u  --name "Azure Pipeline Scan with Repeater" --crawler https://brokencrystals.com/ --smart --test jwt broken_saml_auth brute_force_login)
-    echo "Scan was started with ID https://app.brightsec.com/scans/$SCAN_ID"
-    sleep 10
-    echo "Wait for issues :hourglass_flowing_sand:"
-    RESULT=$(bright-cli scan:polling --interval 30s --timeout 20m --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u --breakpoint high_issue $SCAN_ID)
-    if [ -z "$RESULT" ]
-    then
-        echo "Failed to stop scan"
-    else
-        echo "Stop Scan :octagonal_sign:"
-        bright-cli scan:stop --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u $SCAN_ID
-  displayName: 'Start Scan'
