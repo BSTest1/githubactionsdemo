@@ -1,40 +1,27 @@
 trigger:
 - main
-
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '16.x'
+    versionSpec: '16.x'  # Specify the Node.js version you need
   displayName: 'Install Node.js'
-
 - script: |
-    npm install @brightsec/cli -g
-  displayName: 'Install Bright CLI'
-
+    npm install -g @brightsec/cli
+  displayName: 'Install @brightsec/cli'
 - script: |
-    echo "Start Repeater :checkered_flag:"
-    bright-cli repeater --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u --id wgtsXqzjeofa3y6gTeTgHT &> /dev/null & echo $!
-    sleep 10
-  displayName: 'Start Repeater'
-
-- script: |
-    echo "Start Repeater :checkered_flag:"
-    PID_REPEATER=$(bright-cli repeater --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u --id wgtsXqzjeofa3y6gTeTgHT &> /dev/null & echo $!)
-    echo "Repeater started PID: $PID_REPEATER"
     sleep 10
     echo "Start Bright Scan :checkered_flag:"
-    SCAN_ID=$(bright-cli scan:run --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u --repeater wgtsXqzjeofa3y6gTeTgHT --name "Azure Pipeline Scan with Repeater" --crawler https://brokencrystals.com/ --smart --test jwt broken_saml_auth brute_force_login)
+    SCAN_ID=$(bright-cli scan:run --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u --name "Azure DevOps Scan" --crawler https://brokencrystals.com --smart --test wordpress)
     echo "Scan was started with ID https://app.brightsec.com/scans/$SCAN_ID"
     sleep 10
     echo "Wait for issues :hourglass_flowing_sand:"
-    RESULT=$(bright-cli scan:polling --interval 30s --timeout 20m --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u --breakpoint high_issue $SCAN_ID)
-    if [ -z "$RESULT" ]
-    then
+    RESULT=$(bright-cli scan:polling --interval 30s --timeout 20m --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u --breakpoint=any $SCAN_ID)
+    if [ -z "$RESULT" ]; then
         echo "Failed to stop scan"
     else
         echo "Stop Scan :octagonal_sign:"
         bright-cli scan:stop --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u $SCAN_ID
-  displayName: 'Start Scan'
+  displayName: 'Start Bright Scan'
