@@ -12,6 +12,14 @@ pool:
 steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
+- task: NexPloitScan@3
+  inputs:
+    apiToken: 'thbfw0r.nexp.yxzzix1plidialndvvwsldqg6c4jc13t'
+    hostname: 'nexploit.app'
+    module: 'dast'
+    discoveryTypes: 'crawler'
+    crawlerUrls: 'https://brightsec.com'
+    scanTests: 'wordpress'
 
 - script: |
     echo Add other tasks to build, test, and deploy your project.
