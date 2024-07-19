@@ -22,7 +22,6 @@ steps:
       sleep 10
       echo "Start Brightsec Scan 🏁"
       SCAN_ID=$(bright-cli scan:run --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u --repeater wgtsXqzjeofa3y6gTeTgHT --name "azure" --crawler https://brokencrystals.com/ --smart)
-      echo "Scan was started with ID https://app.brightsec.com/scans/$SCAN_ID\n"
       sleep 10
       echo "Wait for issues ⏳"
       RESULT=$(bright-cli scan:polling --interval 30s --timeout 20m --token u7rani0.nexa.dwfmkxbduya851c8dcgeeeplpgk1yq5u --breakpoint medium_issue $SCAN_ID)
