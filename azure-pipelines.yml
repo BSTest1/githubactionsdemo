@@ -1,15 +1,11 @@
 trigger:
 - '*'
 
-pr:
-- '*'
-
 jobs:
 - job: RunCurlCommand
   steps:
   - script: |
       curl -X 'POST' \
-        'https://app.brightsec.com/api/v1/scans' \
         -H 'accept: application/json' \
         -H 'Authorization: Api-Key h360roq.nexa.kzextcnz0hzny5c2m8okbf8mzl00ilej' \
         -H 'Content-Type: application/json' \
