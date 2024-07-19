@@ -4,10 +4,6 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-variables:
-  BRIGHT_TOKEN: $(BRIGHT_TOKEN)
-  REPEATER_ID: $(REPEATER_ID)
-
 steps:
 - task: NodeTool@0
   inputs:
